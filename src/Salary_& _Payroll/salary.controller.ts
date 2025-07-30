@@ -6,10 +6,27 @@ export class SalaryController {
   constructor(private readonly salaryService: SalaryService) {}
 
   @Post('generate')
-  async generate(@Body() body: { employeeId: string, amount: number, month: string }) {
-    const salary = await this.salaryService.generate(body.employeeId, body.amount, body.month);
+  async generate(@Body() body: {
+    employeeId: string;
+    employeeName: string;
+    department: string;
+    basicSalary: number;
+    allowances: number;
+    deductions: number;
+    month: string;
+    payDate: Date;
+  }) {
+    const salary = await this.salaryService.generate(body);
     return { message: 'Salary generated', salary };
   }
+
+@Get()
+async getAllSalaries() {
+  const salaries = await this.salaryService.getAllSalaries();
+  return { total: salaries.length, salaries };
+}
+
+
 
   @Get(':employeeId')
   async getSlip(@Param('employeeId') employeeId: string) {

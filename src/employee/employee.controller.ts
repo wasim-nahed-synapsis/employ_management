@@ -1,16 +1,24 @@
-import { Controller, Post, Get, Put, Delete, Body, Param } from '@nestjs/common';
+import { Controller, Post, Get, Put, Delete, Body, Param, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { EmployeeService } from './employee.service';
 import { Employee } from './employee.schema';
+import { CreateEmployeeDto } from 'src/dto/create-employee.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('employees')
 export class EmployeeController {
-  constructor(private readonly employeeService: EmployeeService) {}
+  constructor(private readonly employeeService: EmployeeService) { }
 
   @Post()
-  async create(@Body() body: Partial<Employee>) {
-    const emp = await this.employeeService.create(body);
-    return { message: 'Employee created successfully', employee: emp };
+  @UseInterceptors(FileInterceptor('image'))
+  createEmployee(
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: CreateEmployeeDto
+  ) {
+    console.log(body);
+    console.log(file);
+    return this.employeeService.create(body, file);
   }
+
 
   @Get()
   async findAll() {
@@ -24,14 +32,29 @@ export class EmployeeController {
     return employee;
   }
 
+  // @Put(':id')
+  // async update(@Param('id') id: string, @Body() body: Partial<Employee>) {
+  //   const updated = await this.employeeService.update(id, body);
+  //   return { message: 'Employee updated successfully', employee: updated };
+  // }
+
   @Put(':id')
-  async update(@Param('id') id: string, @Body() body: Partial<Employee>) {
-    const updated = await this.employeeService.update(id, body);
-    return { message: 'Employee updated successfully', employee: updated };
+  @UseInterceptors(FileInterceptor('image'))
+  async update(@Param('id') id: string, @UploadedFile() file, @Body() body) {
+    const imagePath = file ? `uploads/${file.filename}` : body.image;
+    return this.employeeService.update(id, { ...body, image: imagePath });
   }
 
+
+  // @Delete(':id')
+  // async remove(@Param('id') id: string) {
+  //   return this.employeeService.delete(id);
+  // }
+  
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async deleteEmployee(@Param('id') id: string) {
     return this.employeeService.delete(id);
   }
+
+
 }

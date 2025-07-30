@@ -3,7 +3,7 @@ import { LeaveService } from './leave.service';
 
 @Controller('leaves')
 export class LeaveController {
-  constructor(private readonly leaveService: LeaveService) {}
+  constructor(private readonly leaveService: LeaveService) { }
 
   @Post('apply')
   async apply(@Body() body: { employeeId: string, reason: string, fromDate: string, toDate: string }) {
@@ -13,6 +13,22 @@ export class LeaveController {
       toDate: new Date(body.toDate),
     });
     return { message: 'Leave applied successfully', leave };
+  }
+
+  @Get()
+  async getAllLeaves() {
+    const leaves = await this.leaveService.getAllLeaves();
+    const uniqueEmployees = new Set(leaves.map(leave => leave.employeeId));
+    const approvedLeaves = leaves.filter(leave => leave.status === 'approved');
+    const rejectedLeaves = leaves.filter(leave => leave.status === 'rejected');
+
+    return {
+      totalLeaves: leaves.length,
+      totalEmployeesAppliedLeave: uniqueEmployees.size,
+      totalApprovedLeaves: approvedLeaves.length, 
+      totalRejectedLeaves: rejectedLeaves.length, 
+      leaves,
+    };
   }
 
   @Get(':employeeId')

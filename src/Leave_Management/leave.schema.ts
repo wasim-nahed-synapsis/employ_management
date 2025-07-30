@@ -9,16 +9,25 @@ export class Leave {
   employeeId: string;
 
   @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
   reason: string;
+
+  @Prop({ required: true })
+  department: string;
+
+  @Prop({ required: true })
+  days: number;
+
+  @Prop({ default: 'pending', enum: ['pending', 'approved', 'rejected'] })
+  status: string;
 
   @Prop({ required: true })
   fromDate: Date;
 
   @Prop({ required: true })
   toDate: Date;
-
-  @Prop({ default: 'pending' }) // approved / rejected / pending
-  status: string;
 }
 
 export const LeaveSchema = SchemaFactory.createForClass(Leave);

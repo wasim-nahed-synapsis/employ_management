@@ -12,6 +12,10 @@ export class LeaveService {
     return leave.save();
   }
 
+   async getAllLeaves(): Promise<LeaveDocument[]> {
+    return this.leaveModel.find().sort({ createdAt: -1 }); 
+  }
+
   async getLeavesByEmployee(employeeId: string): Promise<LeaveDocument[]> {
     return this.leaveModel.find({ employeeId }).sort({ createdAt: -1 });
   }
